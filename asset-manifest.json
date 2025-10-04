@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/seu-repo/static/css/main.1ab5241a.css",
-    "main.js": "/seu-repo/static/js/main.e01c5f6d.js",
-    "static/js/453.670e15c7.chunk.js": "/seu-repo/static/js/453.670e15c7.chunk.js",
-    "index.html": "/seu-repo/index.html",
-    "main.1ab5241a.css.map": "/seu-repo/static/css/main.1ab5241a.css.map",
-    "main.e01c5f6d.js.map": "/seu-repo/static/js/main.e01c5f6d.js.map",
-    "453.670e15c7.chunk.js.map": "/seu-repo/static/js/453.670e15c7.chunk.js.map"
+    "main.css": "/go_inventory_front/static/css/main.1ab5241a.css",
+    "main.js": "/go_inventory_front/static/js/main.e5c4b9ef.js",
+    "static/js/453.670e15c7.chunk.js": "/go_inventory_front/static/js/453.670e15c7.chunk.js",
+    "index.html": "/go_inventory_front/index.html",
+    "main.1ab5241a.css.map": "/go_inventory_front/static/css/main.1ab5241a.css.map",
+    "main.e5c4b9ef.js.map": "/go_inventory_front/static/js/main.e5c4b9ef.js.map",
+    "453.670e15c7.chunk.js.map": "/go_inventory_front/static/js/453.670e15c7.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.1ab5241a.css",
-    "static/js/main.e01c5f6d.js"
+    "static/js/main.e5c4b9ef.js"
   ]
 }
