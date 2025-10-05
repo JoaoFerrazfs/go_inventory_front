@@ -42,7 +42,7 @@ function Racks() {
             <header className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-blue-900">Racks Cadastrados ruim</h1>
                 <a
-                    href="/racks/novo"
+                    href="#/racks/novo"
                     className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full transition-colors shadow-lg flex items-center"
                 >
                     <svg
@@ -92,7 +92,7 @@ function Racks() {
                         return (
                             <a
                                 key={rack.ID}
-                                href={`/racks/${rack.ID}`}
+                                href={`#/racks/${rack.ID}`}
                                 className="block rack-link"
                             >
                                 <div className="bg-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow border-t-4 border-blue-600">

@@ -1,7 +1,9 @@
-
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Racks from "./pages/Racks";
+import NewRack from "./pages/NewRack";
+import RackDetails from "./pages/RackDetails";
+import PalletDetails from "./pages/PalletDetails";
 
 function App() {
   return (
@@ -17,6 +19,9 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/racks" element={<Racks />} />
+            <Route path="/racks/novo" element={<NewRack />} />
+            <Route path="/racks/:id" element={<RackDetails />} />
+            <Route path="/pallets/:id" element={<PalletDetails />} />
           </Routes>
         </main>
 
