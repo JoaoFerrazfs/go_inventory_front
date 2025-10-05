@@ -45,7 +45,7 @@ function PalletDetails() {
     const handleSave = async () => {
         try {
             const res = await fetch(`http://localhost:3000/api/v1/pallets/${id}`, {
-                method: "POST",
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     name: form.name,
@@ -58,12 +58,15 @@ function PalletDetails() {
                 throw new Error(text || `Erro HTTP: ${res.status}`);
             }
 
+            const updatedPallet = await res.json(); // <-- pega a resposta completa
+            setPallet(updatedPallet); // <-- atualiza o estado do pallet com os novos dados
             alert("Pallet atualizado com sucesso!");
             setEditing(false);
         } catch (err) {
             alert(`Erro ao salvar: ${err.message}`);
         }
     };
+
 
     const handleProductEdit = (prod) => {
         setProductEdit(prod.ID);
@@ -196,8 +199,8 @@ function PalletDetails() {
                         <button
                             onClick={() => setEditing(!editing)}
                             className={`text-sm px-4 py-2 rounded-full shadow-md transition ${editing
-                                    ? "bg-gray-500 text-white hover:bg-gray-600"
-                                    : "bg-blue-600 text-white hover:bg-blue-700"
+                                ? "bg-gray-500 text-white hover:bg-gray-600"
+                                : "bg-blue-600 text-white hover:bg-blue-700"
                                 }`}
                         >
                             {editing ? "Cancelar" : "Editar"}
