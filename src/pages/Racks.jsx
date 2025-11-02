@@ -1,5 +1,6 @@
 // src/pages/Racks.jsx
 import React, { useEffect, useState } from "react";
+import API from "../client/api"; // ✅ correto
 
 function Racks() {
     const [racks, setRacks] = useState([]);
@@ -7,21 +8,25 @@ function Racks() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:3000/api/v1/racks/")
+        let isMounted = true;
 
-            .then((res) => {
-                if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
-                return res.json();
-            })
-            .then((data) => {
-                setRacks(data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setError(err.message);
-                setLoading(false);
-            });
+        const fetchRacks = async () => {
+            try {
+                const res = await API.get("/racks/");
+                if (isMounted) setRacks(res.data);
+            } catch (err) {
+                if (isMounted) setError(err?.message || "Erro desconhecido");
+            } finally {
+                if (isMounted) setLoading(false);
+            }
+        };
+
+        fetchRacks();
+
+        return () => { isMounted = false; };
     }, []);
+
+
 
     const renderProgressBar = (percentage) => {
         let color = "bg-green-500";
@@ -40,7 +45,7 @@ function Racks() {
     return (
         <div className="container mx-auto p-4 flex-1">
             <header className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-blue-900">Racks Cadastrados ruim</h1>
+                <h1 className="text-3xl font-bold text-blue-900">Racks Cadastrados</h1>
                 <a
                     href="#/racks/novo"
                     className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full transition-colors shadow-lg flex items-center"

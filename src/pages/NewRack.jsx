@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../client/api"; // <- usamos o Axios com interceptors
 
 function NewRack() {
     const [form, setForm] = useState({
@@ -22,24 +23,18 @@ function NewRack() {
         setError(null);
 
         try {
-            const res = await fetch("http://localhost:3000/api/v1/racks/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    Name: form.Name,
-                    Location: form.Location,
-                    TotalCapacity: parseInt(form.TotalCapacity, 10),
-                }),
+            const res = await API.post("/racks/", {
+                Name: form.Name,
+                Location: form.Location,
+                TotalCapacity: parseInt(form.TotalCapacity, 10),
             });
 
-            if (!res.ok) {
-                const errText = await res.text();
-                throw new Error(`Erro: ${res.status} - ${errText}`);
-            }
-
-            navigate("/racks"); // redireciona após salvar
+            // redireciona após salvar
+            navigate("/racks");
         } catch (err) {
-            setError(err.message);
+            // Axios coloca a resposta de erro em err.response
+            const message = err.response?.data?.message || err.message || "Erro desconhecido";
+            setError(message);
         } finally {
             setLoading(false);
         }

@@ -13,12 +13,12 @@ export default function Home() {
                     produtos e estoques de forma eficiente e acessível.
                 </p>
                 <img
-                    src="/img/banner1.png"
+                    src={process.env.PUBLIC_URL + "/img/banner1.png"}
                     alt="Banner"
                     className="w-4/5 max-w-lg rounded-lg mb-6 object-contain"
                 />
                 <a
-                    href="/login"
+                    href="#/login"
                     className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded transition-colors"
                 >
                     Fazer Login

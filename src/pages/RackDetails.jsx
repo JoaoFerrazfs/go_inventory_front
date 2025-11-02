@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import API from "../client/api"; // <- Axios
 
 function RackDetails() {
     const { id } = useParams();
@@ -12,19 +13,19 @@ function RackDetails() {
     const [newPalletForm, setNewPalletForm] = useState({ name: "" });
 
     useEffect(() => {
-        fetch(`http://localhost:3000/api/v1/racks/${id}`)
-            .then((res) => {
-                if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
-                return res.json();
-            })
-            .then((data) => {
-                setRack(data);
+        const fetchRack = async () => {
+            try {
+                const res = await API.get(`/racks/${id}`);
+                setRack(res.data);
+            } catch (err) {
+                const message = err.response?.data?.message || err.message || "Erro ao carregar rack";
+                setError(message);
+            } finally {
                 setLoading(false);
-            })
-            .catch((err) => {
-                setError(err.message);
-                setLoading(false);
-            });
+            }
+        };
+
+        fetchRack();
     }, [id]);
 
     const handleNewPalletChange = (e) => {
@@ -35,45 +36,34 @@ function RackDetails() {
     const handleAddPallet = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch("http://localhost:3000/api/v1/pallets/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    name: newPalletForm.name,
-                    palletRackId: parseInt(id, 10),
-                }),
+            const res = await API.post(`/pallets/`, {
+                name: newPalletForm.name,
+                palletRackId: parseInt(id, 10),
             });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(text || `Erro HTTP: ${res.status}`);
-            }
-            const createdPallet = await res.json();
+
             setRack((prev) => ({
                 ...prev,
-                pallets: [...prev.pallets, createdPallet],
+                pallets: [...prev.pallets, res.data],
             }));
             setShowAddPalletForm(false);
             setNewPalletForm({ name: "" });
             alert("Pallet adicionado com sucesso!");
         } catch (err) {
-            alert(`Erro ao adicionar pallet: ${err.message}`);
+            const message = err.response?.data?.message || err.message || "Erro ao adicionar pallet";
+            alert(message);
         }
     };
 
-    // NOVO: deletar rack
     const handleDeleteRack = async () => {
         if (!window.confirm("Tem certeza que deseja deletar este rack?")) return;
 
         try {
-            const res = await fetch(`http://localhost:3000/api/v1/racks/${id}`, {
-                method: "DELETE",
-            });
-            if (!res.ok) throw new Error("Erro ao deletar rack");
-
+            await API.delete(`/racks/${id}`);
             alert("Rack deletado com sucesso!");
             navigate("/racks");
         } catch (err) {
-            alert(err.message);
+            const message = err.response?.data?.message || err.message || "Erro ao deletar rack";
+            alert(message);
         }
     };
 
@@ -139,7 +129,6 @@ function RackDetails() {
                         Deletar Rack
                     </button>
                 )}
-
 
                 {/* Formulário de Novo Pallet */}
                 {showAddPalletForm && (

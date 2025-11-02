@@ -4,6 +4,7 @@ import Racks from "./pages/Racks";
 import NewRack from "./pages/NewRack";
 import RackDetails from "./pages/RackDetails";
 import PalletDetails from "./pages/PalletDetails";
+import Login from "./pages/Login";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/racks" element={<Racks />} />
             <Route path="/racks/novo" element={<NewRack />} />
             <Route path="/racks/:id" element={<RackDetails />} />

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import API from "../client/api"; // <- Axios com interceptors
 
 function PalletDetails() {
     const { id } = useParams();
@@ -16,25 +17,25 @@ function PalletDetails() {
     const [newProductForm, setNewProductForm] = useState({ ean: "", quantity: 0 });
 
     useEffect(() => {
-        fetch(`http://localhost:3000/api/v1/pallets/${id}`)
-            .then((res) => {
-                if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
-                return res.json();
-            })
-            .then((data) => {
+        const fetchPallet = async () => {
+            try {
+                const res = await API.get(`/pallets/${id}`);
                 const fetchedPallet =
-                    data.pallets?.find((p) => p.id === parseInt(id)) || data;
+                    res.data.pallets?.find((p) => p.id === parseInt(id)) || res.data;
                 setPallet(fetchedPallet);
                 setForm({
                     name: fetchedPallet?.name || "",
                     palletRackId: fetchedPallet?.palletRackId || "",
                 });
+            } catch (err) {
+                const message = err.response?.data?.message || err.message || "Erro ao carregar pallet";
+                setError(message);
+            } finally {
                 setLoading(false);
-            })
-            .catch((err) => {
-                setError(err.message);
-                setLoading(false);
-            });
+            }
+        };
+
+        fetchPallet();
     }, [id]);
 
     const handleChange = (e) => {
@@ -44,29 +45,19 @@ function PalletDetails() {
 
     const handleSave = async () => {
         try {
-            const res = await fetch(`http://localhost:3000/api/v1/pallets/${id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    name: form.name,
-                    palletRackId: parseInt(form.palletRackId, 10),
-                }),
+            const res = await API.patch(`/pallets/${id}`, {
+                name: form.name,
+                palletRackId: parseInt(form.palletRackId, 10),
             });
 
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(text || `Erro HTTP: ${res.status}`);
-            }
-
-            const updatedPallet = await res.json(); // <-- pega a resposta completa
-            setPallet(updatedPallet); // <-- atualiza o estado do pallet com os novos dados
+            setPallet(res.data);
             alert("Pallet atualizado com sucesso!");
             setEditing(false);
         } catch (err) {
-            alert(`Erro ao salvar: ${err.message}`);
+            const message = err.response?.data?.message || err.message || "Erro ao salvar pallet";
+            alert(message);
         }
     };
-
 
     const handleProductEdit = (prod) => {
         setProductEdit(prod.ID);
@@ -75,26 +66,16 @@ function PalletDetails() {
 
     const handleProductSave = async (prod) => {
         try {
-            const res = await fetch(
-                `http://localhost:3000/api/v1/pallet/products/${pallet.id}`,
-                {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        EAN: prod.ean,
-                        Quantity: parseInt(productQuantity, 10),
-                    }),
-                }
-            );
+            const res = await API.patch(`/pallet/products/${pallet.id}`, {
+                EAN: prod.ean,
+                Quantity: parseInt(productQuantity, 10),
+            });
 
-            if (!res.ok) throw new Error(`Erro ao atualizar produto`);
-
-            const updatedPallet = await res.json();
-
-            setPallet(updatedPallet);
+            setPallet(res.data);
             setProductEdit(null);
         } catch (err) {
-            alert(err.message);
+            const message = err.response?.data?.message || err.message || "Erro ao atualizar produto";
+            alert(message);
         }
     };
 
@@ -102,19 +83,16 @@ function PalletDetails() {
         if (!window.confirm("Tem certeza que quer deletar este produto?")) return;
 
         try {
-            const res = await fetch(
-                `http://localhost:3000/api/v1/pallet/products/${pallet.id}/${prod.ean}`,
-                { method: "DELETE" }
-            );
-            if (!res.ok) throw new Error("Erro ao deletar produto");
+            await API.delete(`/pallet/products/${pallet.id}/${prod.ean}`);
 
-            // Atualiza localmente removendo o produto
             setPallet((prev) => ({
                 ...prev,
                 palletizedProduct: prev.palletizedProduct.filter((p) => p.ID !== prod.ID),
             }));
         } catch (err) {
-            alert(err.message);
+            console.log(err);
+            const message = err.response?.data?.message || err.message || "Erro ao deletar produto";
+            alert(message);
         }
     };
 
@@ -126,27 +104,18 @@ function PalletDetails() {
     const handleAddProduct = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch(
-                `http://localhost:3000/api/v1/pallet/products/${pallet.id}`,
-                {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        EAN: parseInt(newProductForm.ean, 10),
-                        Quantity: parseInt(newProductForm.quantity, 10),
-                    }),
-                }
-            );
-            if (!res.ok) throw new Error("Erro ao adicionar produto");
+            const res = await API.patch(`/pallet/products/${pallet.id}`, {
+                EAN: parseInt(newProductForm.ean, 10),
+                Quantity: parseInt(newProductForm.quantity, 10),
+            });
 
-            const updatedPallet = await res.json();
-
-            setPallet(updatedPallet); // Aqui atualizamos o pallet completo
+            setPallet(res.data);
             setNewProductForm({ ean: "", quantity: 0 });
             setShowAddProductForm(false);
             alert("Produto adicionado com sucesso!");
         } catch (err) {
-            alert(err.message);
+            const message = err.response?.data?.message || err.message || "Erro ao adicionar produto";
+            alert(message);
         }
     };
 
@@ -154,15 +123,12 @@ function PalletDetails() {
         if (!window.confirm("Tem certeza que deseja deletar este pallet?")) return;
 
         try {
-            const res = await fetch(`http://localhost:3000/api/v1/pallets/${id}`, {
-                method: "DELETE",
-            });
-            if (!res.ok) throw new Error("Erro ao deletar pallet");
-
+            await API.delete(`/pallets/${id}`);
             alert("Pallet deletado com sucesso!");
             navigate("/racks");
         } catch (err) {
-            alert(err.message);
+            const message = err.response?.data?.message || err.message || "Erro ao deletar pallet";
+            alert(message);
         }
     };
 
