@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import API from "../client/api"; // <- Axios
+import * as rackService from '../services/rackService';
+import * as palletService from '../services/palletService';
 
 function RackDetails() {
     const { id } = useParams();
@@ -15,8 +17,8 @@ function RackDetails() {
     useEffect(() => {
         const fetchRack = async () => {
             try {
-                const res = await API.get(`/racks/${id}`);
-                setRack(res.data);
+                const data = await rackService.getRack(id);
+                setRack(data);
             } catch (err) {
                 const message = err.response?.data?.message || err.message || "Erro ao carregar rack";
                 setError(message);
@@ -36,14 +38,14 @@ function RackDetails() {
     const handleAddPallet = async (e) => {
         e.preventDefault();
         try {
-            const res = await API.post(`/pallets/`, {
+            const res = await palletService.createPallet({
                 name: newPalletForm.name,
                 palletRackId: parseInt(id, 10),
             });
 
             setRack((prev) => ({
                 ...prev,
-                pallets: [...prev.pallets, res.data],
+                pallets: [...prev.pallets, res],
             }));
             setShowAddPalletForm(false);
             setNewPalletForm({ name: "" });

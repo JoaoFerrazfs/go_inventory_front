@@ -1,55 +1,75 @@
-import axios from "axios";
-import { GO_INVETORY_BACK_HOST } from "../config/api";
+import axios from 'axios';
+import { GO_INVETORY_BACK_HOST } from '../config/api';
+import storage from '../services/storage';
+import authService from '../services/authService';
 
 const API = axios.create({
     baseURL: `${GO_INVETORY_BACK_HOST}/api/v1`,
+    timeout: 10000,
 });
 
-// Intercepta todas as requisições para adicionar o token
-API.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+// Attach token from storage
+API.interceptors.request.use(async (config) => {
+    try {
+        const token = await storage.getItem('token');
+        if (token) config.headers.Authorization = `Bearer ${token}`;
+    } catch (e) {
+        // ignore storage errors
     }
     return config;
 });
 
-// Intercepta respostas para tratar token expirado
+// Refresh token handling with queueing to avoid multiple refresh calls
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) prom.reject(error);
+        else prom.resolve(token);
+    });
+    failedQueue = [];
+};
+
 API.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
 
-        // Se for 401 e não for retry ainda
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            const refreshToken = localStorage.getItem("refreshToken");
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then((token) => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                        return axios(originalRequest);
+                    })
+                    .catch((err) => Promise.reject(err));
+            }
 
-            if (refreshToken) {
+            isRefreshing = true;
+
+            try {
+                const data = await authService.refreshToken();
+                const newToken = data.token || data.accessToken || null;
+                processQueue(null, newToken);
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return axios(originalRequest);
+            } catch (err) {
+                processQueue(err, null);
+                // cleanup and redirect to login
                 try {
-                    const res = await axios.post(
-                        `${GO_INVETORY_BACK_HOST}/api/v1/auth/refreshToken`,
-                        { RefreshToken: refreshToken }
-                    );
-
-                    const { token: newToken, refreshToken: newRefreshToken } = res.data;
-
-                    localStorage.setItem("token", newToken);
-                    if (newRefreshToken) localStorage.setItem("refreshToken", newRefreshToken);
-
-                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-                    // Refaz a requisição original
-                    return axios(originalRequest);
-                } catch (err) {
-                    console.error("Refresh token falhou", err);
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("refreshToken");
-                    window.location.href = "/login"; // redireciona pro login
+                    await authService.logout();
+                } catch (e) {
+                    // ignore
                 }
-            } else {
-                window.location.href = "/login"; // sem refreshToken, manda pro login
+                window.location.href = '/login';
+                return Promise.reject(err);
+            } finally {
+                isRefreshing = false;
             }
         }
 

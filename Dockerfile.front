@@ -16,5 +16,9 @@ COPY . .
 # Expõe a porta do React (3000 dentro do container)
 EXPOSE 3000
 
+# Allow overriding the API base at runtime via REACT_APP_API_BASE.
+# Default tries host.docker.internal (useful on Docker Desktop), fallback to localhost.
+ENV REACT_APP_API_BASE=http://host.docker.internal:3000
+
 # Comando padrão: roda em modo dev
 CMD ["npm", "start"]

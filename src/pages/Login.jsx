@@ -1,41 +1,24 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { GO_INVETORY_BACK_HOST } from "../config/api";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
-
+        setError('');
         try {
-
-            const res = await fetch(`${GO_INVETORY_BACK_HOST}/api/v1/auth/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ Email: email, Password: password }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                setError(data.error || "Erro no login");
-                return;
-            }
-
-            // Salvar tokens
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("refreshToken", data.refreshToken);
-
-            // Redirecionar para dashboard ou página principal
-            navigate("/racks");
+            await login(email, password);
+            navigate('/racks');
         } catch (err) {
-            setError("Erro ao conectar com a API");
             console.error(err);
+            const message = err?.response?.data?.error || err.message || 'Erro no login';
+            setError(message);
         }
     };
 

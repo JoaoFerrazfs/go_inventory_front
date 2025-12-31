@@ -1,0 +1,20 @@
+services:
+  frontend:
+    image: node:20
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_API_BASE=${REACT_APP_API_BASE}
+      - REACT_APP_GO_INVETORY_BACK_HOST=${REACT_APP_GO_INVETORY_BACK_HOST}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_TUNNEL=${MINIO_TUNNEL}
+      - REACT_APP_MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - REACT_APP_MINIO_TUNNEL=${MINIO_TUNNEL}
+    volumes:
+      - ./:/app:delegated
+      - /app/node_modules
+    command: bash -lc "npm install --silent && npm start"
+    stdin_open: true
+    tty: true

@@ -70,3 +70,37 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 # go_inventory_front
 # go_inventory_front
+
+## Docker (frontend)
+
+This repository includes a `Dockerfile.front` and a `docker-compose.yml` to run the frontend in a container.
+
+Defaults:
+- The container exposes port `3000`.
+- The front expects the backend base URL in the environment variable `REACT_APP_API_BASE`.
+
+Examples:
+
+Build and run with defaults (host.docker.internal as API base):
+
+```bash
+docker compose up --build
+```
+
+Override the backend URL (useful when testing on a LAN or different host):
+
+```bash
+REACT_APP_API_BASE=http://192.168.0.100:3000 docker compose up --build
+```
+
+Or use `.env` (copy from `.env.example`) and run:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+Notes:
+- On Docker Desktop `host.docker.internal` usually points to the host machine. On Linux you may need to use your host IP.
+- This compose file mounts the project into the container for a fast dev loop. For production builds consider building the static files and serving them with an HTTP server.
+
