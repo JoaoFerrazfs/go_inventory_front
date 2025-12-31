@@ -5,18 +5,17 @@ import NewRack from "./pages/NewRack";
 import RackDetails from "./pages/RackDetails";
 import PalletDetails from "./pages/PalletDetails";
 import Login from "./pages/Login";
+import Admin from "./pages/Admin";
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import Header from './components/Header';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <div className="flex flex-col min-h-screen">
-          {/* Header comum */}
-          <header className="bg-blue-900 text-white p-4">
-            <h1 className="text-2xl font-bold">Go Inventory</h1>
-          </header>
+          <Header />
 
           {/* Conteúdo principal */}
           <main className="flex-1">
@@ -52,6 +51,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <PalletDetails />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <Admin />
                   </ProtectedRoute>
                 }
               />
