@@ -37,7 +37,7 @@ export async function addProductToPallet(palletId, { ean, quantity }) {
 }
 
 export async function removeProductFromPallet(palletId, productsEan) {
-    const resp = await api.delete(`/pallet/products/${palletId}/${productsEan}`);
+    const resp = await api.delete(`/pallet/products/${palletId}/${productsEan}/`);
     return resp.data;
 }
 
