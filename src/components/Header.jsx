@@ -8,12 +8,12 @@ export default function Header() {
         <header className="backdrop-blur-sm bg-white/40 border-b border-gray-200 px-4 py-3 sticky top-0 z-30">
             <div className="max-w-6xl mx-auto flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <img src="/static/img/logo2.png" alt="Logo" className="h-10 w-auto object-contain" />
+                    <img src={`${process.env.PUBLIC_URL}/img/logo2.png`} alt="Logo" className="h-10 w-auto object-contain" />
                     <Link to="/" className="text-lg font-semibold text-gray-900">Go Inventory</Link>
                 </div>
 
                 <nav className="flex items-center gap-4">
-                    <Link to="/" className="text-sm text-gray-700 hover:text-gray-900">Home</Link>
+                    <Link to="/" className="text-sm text-gray-700 hover:text-gray-900">Pagina Inicial</Link>
                     <Link to="/racks" className="text-sm text-gray-700 hover:text-gray-900">Racks</Link>
                     {isAuthenticated && (
                         <Link to="/admin" className="text-sm text-gray-700 hover:text-gray-900">Admin</Link>
