@@ -30,7 +30,21 @@ function NewRack() {
 
             navigate("/racks");
         } catch (err) {
-            const message = err.response?.data?.message || err.message || "Erro desconhecido";
+            let message = "Erro ao salvar o rack. Tente novamente.";
+            if (err?.response?.status === 400) {
+                message = "Dados inválidos. Verifique os campos.";
+            } else if (err?.response?.status === 409) {
+                message = "Rack já existe com esse nome.";
+            } else if (err?.response?.data?.message) {
+                const backendMsg = err.response.data.message.toLowerCase();
+                if (backendMsg.includes('validation') || backendMsg.includes('invalid')) {
+                    message = "Dados inválidos. Verifique os campos.";
+                } else if (backendMsg.includes('duplicate') || backendMsg.includes('exists')) {
+                    message = "Rack já existe.";
+                } else {
+                    message = "Erro: " + err.response.data.message;
+                }
+            }
             setError(message);
         } finally {
             setLoading(false);

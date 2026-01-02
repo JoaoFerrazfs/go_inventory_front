@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import API from "../client/api"; // <- Axios com interceptors
 import PageContainer from '../components/ui/PageContainer';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 function PalletDetails() {
     const { id } = useParams();
@@ -18,6 +20,9 @@ function PalletDetails() {
 
     const [showAddProductForm, setShowAddProductForm] = useState(false);
     const [newProductForm, setNewProductForm] = useState({ ean: "", quantity: 0 });
+    const [showConfirmDeletePallet, setShowConfirmDeletePallet] = useState(false);
+    const [showConfirmDeleteProduct, setShowConfirmDeleteProduct] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
 
     useEffect(() => {
         const fetchPallet = async () => {
@@ -31,7 +36,17 @@ function PalletDetails() {
                     palletRackId: fetchedPallet?.palletRackId || "",
                 });
             } catch (err) {
-                const message = err.response?.data?.message || err.message || "Erro ao carregar pallet";
+                let message = "Erro ao carregar pallet. Tente novamente.";
+                if (err?.response?.status === 404) {
+                    message = "Pallet não encontrado.";
+                } else if (err?.response?.data?.message) {
+                    const backendMsg = err.response.data.message.toLowerCase();
+                    if (backendMsg.includes('not found')) {
+                        message = "Pallet não encontrado.";
+                    } else {
+                        message = "Erro: " + err.response.data.message;
+                    }
+                }
                 setError(message);
             } finally {
                 setLoading(false);
@@ -54,11 +69,21 @@ function PalletDetails() {
             });
 
             setPallet(res.data);
-            alert("Pallet atualizado com sucesso!");
+            toast.success("Pallet atualizado com sucesso!");
             setEditing(false);
         } catch (err) {
-            const message = err.response?.data?.message || err.message || "Erro ao salvar pallet";
-            alert(message);
+            let message = "Erro ao salvar pallet. Tente novamente.";
+            if (err?.response?.status === 400) {
+                message = "Dados inválidos. Verifique os campos.";
+            } else if (err?.response?.data?.message) {
+                const backendMsg = err.response.data.message.toLowerCase();
+                if (backendMsg.includes('validation') || backendMsg.includes('invalid')) {
+                    message = "Dados inválidos. Verifique os campos.";
+                } else {
+                    message = "Erro: " + err.response.data.message;
+                }
+            }
+            toast.error(message);
         }
     };
 
@@ -77,14 +102,34 @@ function PalletDetails() {
             setPallet(res.data);
             setProductEdit(null);
         } catch (err) {
-            const message = err.response?.data?.message || err.message || "Erro ao atualizar produto";
-            alert(message);
+            let message = "Erro ao atualizar produto. Tente novamente.";
+            if (err?.response?.status === 400) {
+                message = "Dados inválidos. Verifique a quantidade.";
+            } else if (err?.response?.status === 404) {
+                message = "Produto não encontrado.";
+            } else if (err?.response?.data?.message) {
+                const backendMsg = err.response.data.message.toLowerCase();
+                if (backendMsg.includes('not found')) {
+                    message = "Produto não encontrado.";
+                } else if (backendMsg.includes('invalid')) {
+                    message = "Dados inválidos.";
+                } else {
+                    message = "Erro: " + err.response.data.message;
+                }
+            }
+            toast.error(message);
         }
     };
 
     const handleProductDelete = async (prod) => {
-        if (!window.confirm("Tem certeza que quer deletar este produto?")) return;
+        setProductToDelete(prod);
+        setShowConfirmDeleteProduct(true);
+    };
 
+    const confirmDeleteProduct = async () => {
+        const prod = productToDelete;
+        setShowConfirmDeleteProduct(false);
+        setProductToDelete(null);
         try {
             await API.delete(`/pallet/products/${pallet.id}/${prod.ean}`);
 
@@ -94,8 +139,18 @@ function PalletDetails() {
             }));
         } catch (err) {
             console.log(err);
-            const message = err.response?.data?.message || err.message || "Erro ao deletar produto";
-            alert(message);
+            let message = "Erro ao deletar produto. Tente novamente.";
+            if (err?.response?.status === 404) {
+                message = "Produto não encontrado.";
+            } else if (err?.response?.data?.message) {
+                const backendMsg = err.response.data.message.toLowerCase();
+                if (backendMsg.includes('not found')) {
+                    message = "Produto não encontrado.";
+                } else {
+                    message = "Erro: " + err.response.data.message;
+                }
+            }
+            toast.error(message);
         }
     };
 
@@ -115,23 +170,50 @@ function PalletDetails() {
             setPallet(res.data);
             setNewProductForm({ ean: "", quantity: 0 });
             setShowAddProductForm(false);
-            alert("Produto adicionado com sucesso!");
+            toast.success("Produto adicionado com sucesso!");
         } catch (err) {
-            const message = err.response?.data?.message || err.message || "Erro ao adicionar produto";
-            alert(message);
+            let message = "Erro ao adicionar produto. Tente novamente.";
+            if (err?.response?.status === 400) {
+                message = "Dados inválidos. Verifique EAN e quantidade.";
+            } else if (err?.response?.status === 409) {
+                message = "Produto já existe no pallet.";
+            } else if (err?.response?.data?.message) {
+                const backendMsg = err.response.data.message.toLowerCase();
+                if (backendMsg.includes('duplicate') || backendMsg.includes('exists')) {
+                    message = "Produto já existe no pallet.";
+                } else if (backendMsg.includes('invalid')) {
+                    message = "Dados inválidos.";
+                } else {
+                    message = "Erro: " + err.response.data.message;
+                }
+            }
+            toast.error(message);
         }
     };
 
     const handleDeletePallet = async () => {
-        if (!window.confirm("Tem certeza que deseja deletar este pallet?")) return;
+        setShowConfirmDeletePallet(true);
+    };
 
+    const confirmDeletePallet = async () => {
+        setShowConfirmDeletePallet(false);
         try {
             await API.delete(`/pallets/${id}`);
-            alert("Pallet deletado com sucesso!");
+            toast.success("Pallet deletado com sucesso!");
             navigate("/racks");
         } catch (err) {
-            const message = err.response?.data?.message || err.message || "Erro ao deletar pallet";
-            alert(message);
+            let message = "Erro ao deletar pallet. Tente novamente.";
+            if (err?.response?.status === 404) {
+                message = "Pallet não encontrado.";
+            } else if (err?.response?.data?.message) {
+                const backendMsg = err.response.data.message.toLowerCase();
+                if (backendMsg.includes('not found')) {
+                    message = "Pallet não encontrado.";
+                } else {
+                    message = "Erro: " + err.response.data.message;
+                }
+            }
+            toast.error(message);
         }
     };
 
@@ -215,6 +297,20 @@ function PalletDetails() {
                     )}
                 </Card>
             </div>
+            <ConfirmDialog
+                isOpen={showConfirmDeletePallet}
+                onClose={() => setShowConfirmDeletePallet(false)}
+                onConfirm={confirmDeletePallet}
+                title="Deletar Pallet"
+                message="Tem certeza que deseja deletar este pallet? Esta ação não pode ser desfeita."
+            />
+            <ConfirmDialog
+                isOpen={showConfirmDeleteProduct}
+                onClose={() => setShowConfirmDeleteProduct(false)}
+                onConfirm={confirmDeleteProduct}
+                title="Deletar Produto"
+                message="Tem certeza que quer deletar este produto do pallet?"
+            />
         </PageContainer>
     );
 }

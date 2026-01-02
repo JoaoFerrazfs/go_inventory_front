@@ -20,7 +20,22 @@ export default function Login() {
             navigate('/racks');
         } catch (err) {
             console.error(err);
-            const message = err?.response?.data?.error || err.message || 'Erro no login';
+            let message = 'Erro no login. Tente novamente.';
+            if (err?.response?.status === 401) {
+                message = 'Email ou senha incorretos.';
+            } else if (err?.response?.status === 400) {
+                message = 'Dados inválidos. Verifique seu email e senha.';
+            } else if (!err?.response) {
+                message = 'Erro de conexão. Verifique sua internet.';
+            } else if (err?.response?.data?.error) {
+                // If backend provides a message, but translate if possible
+                const backendMsg = err.response.data.error.toLowerCase();
+                if (backendMsg.includes('invalid') || backendMsg.includes('wrong')) {
+                    message = 'Email ou senha incorretos.';
+                } else {
+                    message = 'Erro no login: ' + err.response.data.error;
+                }
+            }
             setError(message);
         }
     };

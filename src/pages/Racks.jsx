@@ -1,6 +1,9 @@
 // src/pages/Racks.jsx
 import React, { useEffect, useState } from "react";
 import API from "../client/api"; // ✅ correto
+import { Link } from 'react-router-dom';
+import { Archive, Plus } from 'lucide-react';
+import Button from '../components/ui/Button';
 
 function Racks() {
     const [racks, setRacks] = useState([]);
@@ -10,12 +13,26 @@ function Racks() {
     useEffect(() => {
         let isMounted = true;
 
+        const getErrorMessage = (err) => {
+            if (!err?.response) {
+                return "Erro de conexão. Verifique sua internet.";
+            }
+            if (err.response.status === 500) {
+                return "Erro no servidor. Tente novamente mais tarde.";
+            }
+            if (err.response.data?.message) {
+                return "Erro: " + err.response.data.message;
+            }
+            return "Erro ao carregar racks. Tente novamente.";
+        };
+
         const fetchRacks = async () => {
             try {
                 const res = await API.get("/racks/");
                 if (isMounted) setRacks(res.data);
             } catch (err) {
-                if (isMounted) setError(err?.message || "Erro desconhecido");
+                const message = getErrorMessage(err);
+                if (isMounted) setError(message);
             } finally {
                 if (isMounted) setLoading(false);
             }
@@ -46,7 +63,9 @@ function Racks() {
         <div className="p-4">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-semibold text-gray-900">Racks</h1>
-                <a href="#/racks/novo" className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow">Novo</a>
+                <Link to="/racks/novo">
+                    <Button icon={Plus}>Novo</Button>
+                </Link>
             </div>
 
             {loading && (
@@ -66,7 +85,7 @@ function Racks() {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 mt-6">
                 {!loading && !error && racks.map((rack) => {
                     const slotsOcupados = rack.Pallets ? rack.Pallets.length : 0;
                     const percentage = parseFloat(rack.PercetageUsed || 0).toFixed(0);
@@ -74,9 +93,7 @@ function Racks() {
                         <a key={rack.ID} href={`#/racks/${rack.ID}`} className="block">
                             <div className="bg-white p-5 rounded-2xl shadow hover:shadow-xl transition border-t-4 border-blue-600">
                                 <div className="flex items-center justify-center mb-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h14a1 1 0 001-1V4a1 1 0 00-1-1H3zm1 2h12v2H4V5zm0 4h12v2H4V9zm0 4h12v2H4v-2z" clipRule="evenodd" />
-                                    </svg>
+                                    <Archive size={48} className="text-blue-500" />
                                 </div>
 
                                 <h2 className="text-xl font-semibold text-gray-900 mb-2 truncate" title={rack.Name}>{rack.Name}</h2>

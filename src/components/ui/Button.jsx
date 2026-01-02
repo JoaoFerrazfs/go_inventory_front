@@ -1,7 +1,7 @@
 import React from 'react';
 
-export default function Button({ children, variant = 'primary', className = '', ...props }) {
-    const base = 'px-4 py-2 rounded-md font-medium transition-colors';
+export default function Button({ children, variant = 'primary', className = '', icon: Icon, ...props }) {
+    const base = 'px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2';
     const styles = {
         primary: 'bg-blue-600 text-white hover:bg-blue-700',
         ghost: 'bg-white border border-gray-200 text-gray-800 hover:bg-gray-50',
@@ -9,6 +9,7 @@ export default function Button({ children, variant = 'primary', className = '', 
     };
     return (
         <button className={`${base} ${styles[variant] || styles.primary} ${className}`} {...props}>
+            {Icon && <Icon size={16} />}
             {children}
         </button>
     );

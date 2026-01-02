@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import toast from 'react-hot-toast';
 import API from "../client/api"; // <- Axios
 import * as rackService from '../services/rackService';
 import * as palletService from '../services/palletService';
 import PageContainer from '../components/ui/PageContainer';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 function RackDetails() {
     const { id } = useParams();
@@ -16,6 +18,7 @@ function RackDetails() {
     const [showProducts, setShowProducts] = useState(false);
     const [showAddPalletForm, setShowAddPalletForm] = useState(false);
     const [newPalletForm, setNewPalletForm] = useState({ name: "" });
+    const [showConfirmDeleteRack, setShowConfirmDeleteRack] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -24,7 +27,17 @@ function RackDetails() {
                 const data = await rackService.getRack(id);
                 if (mounted) setRack(data);
             } catch (err) {
-                const message = err.response?.data?.message || err.message || "Erro ao carregar rack";
+                let message = "Erro ao carregar rack. Tente novamente.";
+                if (err?.response?.status === 404) {
+                    message = "Rack não encontrado.";
+                } else if (err?.response?.data?.message) {
+                    const backendMsg = err.response.data.message.toLowerCase();
+                    if (backendMsg.includes('not found')) {
+                        message = "Rack não encontrado.";
+                    } else {
+                        message = "Erro: " + err.response.data.message;
+                    }
+                }
                 if (mounted) setError(message);
             } finally {
                 if (mounted) setLoading(false);
@@ -46,22 +59,50 @@ function RackDetails() {
             setRack((prev) => ({ ...prev, pallets: [...(prev.pallets || []), res] }));
             setShowAddPalletForm(false);
             setNewPalletForm({ name: "" });
-            alert('Pallet adicionado com sucesso!');
+            toast.success('Pallet adicionado com sucesso!');
         } catch (err) {
-            const message = err.response?.data?.message || err.message || 'Erro ao adicionar pallet';
-            alert(message);
+            let message = "Erro ao adicionar pallet. Tente novamente.";
+            if (err?.response?.status === 400) {
+                message = "Dados inválidos. Verifique o nome.";
+            } else if (err?.response?.status === 409) {
+                message = "Pallet com esse nome já existe.";
+            } else if (err?.response?.data?.message) {
+                const backendMsg = err.response.data.message.toLowerCase();
+                if (backendMsg.includes('duplicate') || backendMsg.includes('exists')) {
+                    message = "Pallet já existe.";
+                } else if (backendMsg.includes('invalid')) {
+                    message = "Dados inválidos.";
+                } else {
+                    message = "Erro: " + err.response.data.message;
+                }
+            }
+            toast.error(message);
         }
     };
 
     const handleDeleteRack = async () => {
-        if (!window.confirm('Tem certeza que deseja deletar este rack?')) return;
+        setShowConfirmDeleteRack(true);
+    };
+
+    const confirmDeleteRack = async () => {
+        setShowConfirmDeleteRack(false);
         try {
             await API.delete(`/racks/${id}`);
-            alert('Rack deletado com sucesso!');
+            toast.success('Rack deletado com sucesso!');
             navigate('/racks');
         } catch (err) {
-            const message = err.response?.data?.message || err.message || 'Erro ao deletar rack';
-            alert(message);
+            let message = "Erro ao deletar rack. Tente novamente.";
+            if (err?.response?.status === 404) {
+                message = "Rack não encontrado.";
+            } else if (err?.response?.data?.message) {
+                const backendMsg = err.response.data.message.toLowerCase();
+                if (backendMsg.includes('not found')) {
+                    message = "Rack não encontrado.";
+                } else {
+                    message = "Erro: " + err.response.data.message;
+                }
+            }
+            toast.error(message);
         }
     };
 
@@ -140,6 +181,13 @@ function RackDetails() {
                     )}
                 </Card>
             </div>
+            <ConfirmDialog
+                isOpen={showConfirmDeleteRack}
+                onClose={() => setShowConfirmDeleteRack(false)}
+                onConfirm={confirmDeleteRack}
+                title="Deletar Rack"
+                message="Tem certeza que deseja deletar este rack? Esta ação não pode ser desfeita."
+            />
         </PageContainer>
     );
 }
