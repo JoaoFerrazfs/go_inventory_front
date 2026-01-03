@@ -7,6 +7,8 @@ import RackDetails from "./pages/RackDetails";
 import PalletDetails from "./pages/PalletDetails";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import UserManagement from "./pages/UserManagement";
+import Pallets from "./pages/Pallets";
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Header from './components/Header';
@@ -61,6 +63,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Admin />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute>
+                    <UserManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/pallets"
+                element={
+                  <ProtectedRoute>
+                    <Pallets />
                   </ProtectedRoute>
                 }
               />

@@ -1,8 +1,23 @@
 import api from '../client/api';
 import { normalizeAssetUrl } from '../utils/assetUrl';
 
-export async function listPallets() {
-    const resp = await api.get('/pallets/');
+export async function exportPallets(filters = {}) {
+    const params = new URLSearchParams();
+    if (filters.palletRackId) params.append('palletRackId', filters.palletRackId);
+    if (filters.productId) params.append('productId', filters.productId);
+    const queryString = params.toString();
+    const url = queryString ? `/pallets/export?${queryString}` : '/pallets/export';
+    const resp = await api.get(url);
+    return resp.data;
+}
+
+export async function listPallets(filters = {}) {
+    const params = new URLSearchParams();
+    if (filters.palletRackId) params.append('palletRackId', filters.palletRackId);
+    if (filters.productId) params.append('productId', filters.productId);
+    const queryString = params.toString();
+    const url = queryString ? `/pallets/?${queryString}` : '/pallets/';
+    const resp = await api.get(url);
     const data = resp.data || [];
     return data.map((p) => ({ ...p, qr_code_url: normalizeAssetUrl(p.qr_code_url) }));
 }
@@ -43,6 +58,7 @@ export async function removeProductFromPallet(palletId, productsEan) {
 
 export default {
     listPallets,
+    exportPallets,
     getPallet,
     createPallet,
     updatePallet,
