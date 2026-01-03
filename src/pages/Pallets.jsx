@@ -9,7 +9,7 @@ export default function Pallets() {
     const navigate = useNavigate();
     const [pallets, setPallets] = useState([]);
     const [expandedRows, setExpandedRows] = useState(new Set());
-    const [filters, setFilters] = useState({ palletRackId: '', productId: '' });
+    const [filters, setFilters] = useState({ palletRackId: '', ean: '' });
     const [exportLoading, setExportLoading] = useState(false);
 
     const fetchPallets = useCallback(async () => {
@@ -35,7 +35,7 @@ export default function Pallets() {
     };
 
     const clearFilters = () => {
-        setFilters({ palletRackId: '', productId: '' });
+        setFilters({ palletRackId: '', ean: '' });
         fetchPallets();
     };
 
@@ -99,12 +99,12 @@ export default function Pallets() {
                         />
                     </div>
                     <div>
-                        <label htmlFor="productId" className="block text-sm font-medium text-gray-700">Product ID</label>
+                        <label htmlFor="ean" className="block text-sm font-medium text-gray-700">Product EAN</label>
                         <input
                             type="number"
-                            id="productId"
-                            name="productId"
-                            value={filters.productId}
+                            id="ean"
+                            name="ean"
+                            value={filters.ean}
                             onChange={handleFilterChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             placeholder="Digite o ID do produto"

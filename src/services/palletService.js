@@ -4,7 +4,7 @@ import { normalizeAssetUrl } from '../utils/assetUrl';
 export async function exportPallets(filters = {}) {
     const params = new URLSearchParams();
     if (filters.palletRackId) params.append('palletRackId', filters.palletRackId);
-    if (filters.productId) params.append('productId', filters.productId);
+    if (filters.ean) params.append('ean', filters.ean);
     const queryString = params.toString();
     const url = queryString ? `/pallets/export?${queryString}` : '/pallets/export';
     const resp = await api.get(url);
@@ -14,7 +14,7 @@ export async function exportPallets(filters = {}) {
 export async function listPallets(filters = {}) {
     const params = new URLSearchParams();
     if (filters.palletRackId) params.append('palletRackId', filters.palletRackId);
-    if (filters.productId) params.append('productId', filters.productId);
+    if (filters.ean) params.append('ean', filters.ean);
     const queryString = params.toString();
     const url = queryString ? `/pallets/?${queryString}` : '/pallets/';
     const resp = await api.get(url);
