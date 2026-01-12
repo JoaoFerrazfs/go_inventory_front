@@ -6,7 +6,9 @@ import NewRack from "./pages/NewRack";
 import RackDetails from "./pages/RackDetails";
 import PalletDetails from "./pages/PalletDetails";
 import Login from "./pages/Login";
+import InventorySelection from "./pages/InventorySelection";
 import Admin from "./pages/Admin";
+import AdminInventories from "./pages/AdminInventories";
 import UserManagement from "./pages/UserManagement";
 import Pallets from "./pages/Pallets";
 import { AuthProvider } from './context/AuthContext';
@@ -26,6 +28,14 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
+              <Route
+                path="/select-inventory"
+                element={
+                  <ProtectedRoute>
+                    <InventorySelection />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/racks"
                 element={
@@ -71,6 +81,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <UserManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/inventories"
+                element={
+                  <ProtectedRoute>
+                    <AdminInventories />
                   </ProtectedRoute>
                 }
               />

@@ -6,8 +6,10 @@ import PageContainer from '../components/ui/PageContainer';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
+import { useAuth } from '../context/AuthContext';
 
 function PalletDetails() {
+    const { selectedInventory } = useAuth();
     const { id } = useParams();
     const navigate = useNavigate();
     const [pallet, setPallet] = useState(null);
@@ -229,10 +231,12 @@ function PalletDetails() {
                 <Card className="mb-5">
                     <div className="flex justify-between items-center mb-3">
                         <h1 className="text-2xl font-semibold text-gray-900">Detalhes do Pallet</h1>
-                        <div className="flex gap-2">
-                            <Button onClick={() => setEditing(!editing)}>{editing ? 'Cancelar' : 'Editar'}</Button>
-                            <Button variant="danger" onClick={handleDeletePallet}>Deletar</Button>
-                        </div>
+                        {selectedInventory?.status !== 'Closed' && (
+                            <div className="flex gap-2">
+                                <Button onClick={() => setEditing(!editing)}>{editing ? 'Cancelar' : 'Editar'}</Button>
+                                <Button variant="danger" onClick={handleDeletePallet}>Deletar</Button>
+                            </div>
+                        )}
                     </div>
 
                     <div className="space-y-2">
@@ -253,16 +257,18 @@ function PalletDetails() {
                         </label>
                     </div>
 
-                    {editing && <Button onClick={handleSave} className="w-full mt-4">Salvar Alterações</Button>}
+                    {editing && selectedInventory?.status !== 'Closed' && <Button onClick={handleSave} className="w-full mt-4">Salvar Alterações</Button>}
                 </Card>
 
                 <Card>
                     <div className="flex justify-between items-center mb-3">
                         <h2 className="text-lg font-semibold text-gray-800">Produtos Paletizados</h2>
-                        <Button onClick={() => setShowAddProductForm(!showAddProductForm)}>{showAddProductForm ? 'Cancelar' : 'Adicionar Produto'}</Button>
+                        {selectedInventory?.status !== 'Closed' && (
+                            <Button onClick={() => setShowAddProductForm(!showAddProductForm)}>{showAddProductForm ? 'Cancelar' : 'Adicionar Produto'}</Button>
+                        )}
                     </div>
 
-                    {showAddProductForm && (
+                    {showAddProductForm && selectedInventory?.status !== 'Closed' && (
                         <form onSubmit={handleAddProduct} className="mb-4 bg-gray-50 p-3 rounded-lg space-y-2">
                             <input type="number" name="ean" placeholder="EAN" value={newProductForm.ean} onChange={handleNewProductChange} required className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
                             <input type="number" name="quantity" placeholder="Quantidade" value={newProductForm.quantity} onChange={handleNewProductChange} required className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
@@ -275,7 +281,7 @@ function PalletDetails() {
                             <div key={prod.ID} className="flex justify-between items-center text-sm text-gray-600 border-b border-gray-200 py-2">
                                 <div>
                                     <span>EAN: {prod.ean}</span>
-                                    {productEdit === prod.ID ? (
+                                    {productEdit === prod.ID && selectedInventory?.status !== 'Closed' ? (
                                         <input type="number" value={productQuantity} onChange={(e) => setProductQuantity(e.target.value)} className="ml-2 w-20 border rounded-lg p-1" />
                                     ) : (
                                         <span className="ml-2">Qtd: {prod.quantity}</span>
@@ -284,11 +290,11 @@ function PalletDetails() {
 
                                 <div className="flex gap-2">
                                     {productEdit === prod.ID ? (
-                                        <Button onClick={() => handleProductSave(prod)} variant="primary">Salvar</Button>
+                                        selectedInventory?.status !== 'Closed' && <Button onClick={() => handleProductSave(prod)} variant="primary">Salvar</Button>
                                     ) : (
-                                        <Button onClick={() => handleProductEdit(prod)} variant="primary">Editar</Button>
+                                        selectedInventory?.status !== 'Closed' && <Button onClick={() => handleProductEdit(prod)} variant="primary">Editar</Button>
                                     )}
-                                    <Button variant="danger" onClick={() => handleProductDelete(prod)}>Deletar</Button>
+                                    {selectedInventory?.status !== 'Closed' && <Button variant="danger" onClick={() => handleProductDelete(prod)}>Deletar</Button>}
                                 </div>
                             </div>
                         ))

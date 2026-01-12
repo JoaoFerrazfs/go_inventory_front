@@ -58,6 +58,12 @@ export default function Admin() {
                             <div className="mt-3 font-semibold text-gray-900">Listar e gerenciar pallets</div>
                             <div className="mt-4"><Button variant="primary" onClick={() => navigate('/admin/pallets')} className="w-full">Ir para Pallets</Button></div>
                         </Card>
+
+                        <Card className="p-4">
+                            <div className="text-sm text-gray-600">Inventários</div>
+                            <div className="mt-3 font-semibold text-gray-900">Gerenciar inventários (abrir/fechar)</div>
+                            <div className="mt-4"><Button variant="primary" onClick={() => navigate('/admin/inventories')} className="w-full">Ir para Inventários</Button></div>
+                        </Card>
                     </div>
                 </section>
             </Card>

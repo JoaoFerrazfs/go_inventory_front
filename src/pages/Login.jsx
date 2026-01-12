@@ -17,7 +17,7 @@ export default function Login() {
         setError('');
         try {
             await login(email, password);
-            navigate('/racks');
+            navigate('/select-inventory');
         } catch (err) {
             console.error(err);
             let message = 'Erro no login. Tente novamente.';

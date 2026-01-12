@@ -4,8 +4,10 @@ import API from "../client/api"; // ✅ correto
 import { Link } from 'react-router-dom';
 import { Archive, Plus } from 'lucide-react';
 import Button from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
 
 function Racks() {
+    const { selectedInventory } = useAuth();
     const [racks, setRacks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -63,9 +65,11 @@ function Racks() {
         <div className="p-4">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-semibold text-gray-900">Racks</h1>
-                <Link to="/racks/novo">
-                    <Button icon={Plus}>Novo</Button>
-                </Link>
+                {selectedInventory?.status !== 'Closed' && (
+                    <Link to="/racks/novo">
+                        <Button icon={Plus}>Novo</Button>
+                    </Link>
+                )}
             </div>
 
             {loading && (

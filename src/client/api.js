@@ -13,6 +13,14 @@ API.interceptors.request.use(async (config) => {
     try {
         const token = await storage.getItem('token');
         if (token) config.headers.Authorization = `Bearer ${token}`;
+
+        const inventory = await storage.getItem('selectedInventory');
+        if (inventory) {
+            const inv = JSON.parse(inventory);
+            if (config.url.includes('/racks') || config.url.includes('/pallets') || config.url.includes('/pallet/products/')) {
+                config.headers['X-Inventory-ID'] = inv.id;
+            }
+        }
     } catch (e) {
         // ignore storage errors
     }

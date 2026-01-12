@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from './Button';
 
-export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, message }) {
+export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, confirmText = "Deletar", confirmVariant = "danger" }) {
     if (!isOpen) return null;
 
     return (
@@ -11,7 +11,7 @@ export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, messa
                 <p className="text-gray-600 mb-4">{message}</p>
                 <div className="flex gap-3 justify-end">
                     <Button onClick={onClose} variant="ghost">Cancelar</Button>
-                    <Button onClick={onConfirm} variant="danger">Deletar</Button>
+                    <Button onClick={onConfirm} variant={confirmVariant}>{confirmText}</Button>
                 </div>
             </div>
         </div>

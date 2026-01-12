@@ -11,7 +11,7 @@ export default function Home() {
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/racks');
+            navigate('/select-inventory');
         }
     }, [isAuthenticated, navigate]);
 

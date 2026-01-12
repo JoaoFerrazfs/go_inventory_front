@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, Grid3X3, Settings, LogIn, LogOut, Menu, X } from 'lucide-react';
+import { Home, Settings, LogIn, LogOut, Menu, X } from 'lucide-react';
 
 export default function Header() {
-    const { isAuthenticated, logout } = useAuth();
+    const { isAuthenticated, logout, selectedInventory } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -15,39 +15,46 @@ export default function Header() {
                     <Link to="/" className="text-lg font-semibold text-gray-900">Go Inventory</Link>
                 </div>
 
-                <nav className="hidden md:flex items-center gap-4">
-                    {!isAuthenticated && (
-                        <Link to="/" className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900">
-                            <Home size={16} /> Pagina Inicial
-                        </Link>
+                <div className="flex items-center gap-4">
+                    {selectedInventory && (
+                        <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded font-semibold text-sm">
+                            {selectedInventory.name} (ID: {selectedInventory.id})
+                        </div>
                     )}
-                    {isAuthenticated && (
-                        <Link to="/racks" className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900">
-                            <Grid3X3 size={16} /> Racks
-                        </Link>
-                    )}
-                    {isAuthenticated && (
-                        <Link to="/admin" className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900">
-                            <Settings size={16} /> Admin
-                        </Link>
-                    )}
-                    {!isAuthenticated ? (
-                        <Link to="/login" className="flex items-center gap-2 ml-4 text-sm text-blue-600">
-                            <LogIn size={16} /> Login
-                        </Link>
-                    ) : (
-                        <button onClick={logout} className="flex items-center gap-2 ml-4 text-sm text-red-600">
-                            <LogOut size={16} /> Logout
-                        </button>
-                    )}
-                </nav>
+                    <nav className="hidden md:flex items-center gap-4">
+                        {!isAuthenticated && (
+                            <Link to="/" className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900">
+                                <Home size={16} /> Pagina Inicial
+                            </Link>
+                        )}
+                        {isAuthenticated && (
+                            <Link to="/" className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900">
+                                <Home size={16} /> Página Inicial
+                            </Link>
+                        )}
+                        {isAuthenticated && (
+                            <Link to="/admin" className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900">
+                                <Settings size={16} /> Admin
+                            </Link>
+                        )}
+                        {!isAuthenticated ? (
+                            <Link to="/login" className="flex items-center gap-2 ml-4 text-sm text-blue-600">
+                                <LogIn size={16} /> Login
+                            </Link>
+                        ) : (
+                            <button onClick={logout} className="flex items-center gap-2 ml-4 text-sm text-red-600">
+                                <LogOut size={16} /> Logout
+                            </button>
+                        )}
+                    </nav>
 
-                <button
-                    className="md:hidden text-gray-700"
-                    onClick={() => setIsOpen(!isOpen)}
-                >
-                    {isOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
+                    <button
+                        className="md:hidden text-gray-700"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        {isOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                </div>
             </div>
 
             {isOpen && (
@@ -60,7 +67,7 @@ export default function Header() {
                         )}
                         {isAuthenticated && (
                             <Link to="/racks" className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900" onClick={() => setIsOpen(false)}>
-                                <Grid3X3 size={16} /> Racks
+                                <Home size={16} /> Página Inicial
                             </Link>
                         )}
                         {isAuthenticated && (

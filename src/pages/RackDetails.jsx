@@ -8,8 +8,10 @@ import PageContainer from '../components/ui/PageContainer';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
+import { useAuth } from '../context/AuthContext';
 
 function RackDetails() {
+    const { selectedInventory } = useAuth();
     const { id } = useParams();
     const navigate = useNavigate();
     const [rack, setRack] = useState(null);
@@ -126,16 +128,18 @@ function RackDetails() {
                         </div>
 
                         <div className="mt-4">
-                            <Button onClick={() => setShowAddPalletForm(!showAddPalletForm)} className="w-full">{showAddPalletForm ? 'Cancelar' : 'Adicionar Pallet'}</Button>
+                            {selectedInventory?.status !== 'Closed' && (
+                                <Button onClick={() => setShowAddPalletForm(!showAddPalletForm)} className="w-full">{showAddPalletForm ? 'Cancelar' : 'Adicionar Pallet'}</Button>
+                            )}
                         </div>
 
-                        {rack.pallets.length === 0 && (
+                        {rack.pallets.length === 0 && selectedInventory?.status !== 'Closed' && (
                             <div className="mt-3">
                                 <Button variant="danger" onClick={handleDeleteRack} className="w-full">Deletar Rack</Button>
                             </div>
                         )}
 
-                        {showAddPalletForm && (
+                        {showAddPalletForm && selectedInventory?.status !== 'Closed' && (
                             <form onSubmit={handleAddPallet} className="mt-4 bg-gray-50 p-3 rounded-lg space-y-3">
                                 <label className="block text-sm text-gray-700">Nome do Pallet
                                     <input type="text" name="name" value={newPalletForm.name} onChange={handleNewPalletChange} required className="w-full mt-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
