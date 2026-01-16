@@ -83,14 +83,14 @@ function Racks() {
                 </div>
             )}
 
-            {!loading && !error && racks.length === 0 && (
+            {!loading && !error && racks.data.length === 0 && (
                 <div className="text-center p-10 bg-white rounded-2xl shadow mt-6">
                     <p className="text-gray-500 text-lg">Nenhum rack cadastrado ainda. Comece adicionando um novo! 🚀</p>
                 </div>
             )}
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 mt-6">
-                {!loading && !error && racks.map((rack) => {
+                {!loading && !error && racks.data.map((rack) => {
                     const slotsOcupados = rack.Pallets ? rack.Pallets.length : 0;
                     const percentage = parseFloat(rack.PercetageUsed || 0).toFixed(0);
                     return (

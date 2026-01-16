@@ -4,7 +4,7 @@ import api from '../client/api';
 export async function requestReport(type = 'inventory') {
     // Try to call backend; fallback to mocked link when request fails or endpoint absent
     try {
-        const resp = await api.post('/admin/reports/', { type });
+        const resp = await api.post('/admin/reports', { type });
         return resp.data; // expected { url: 'https://...' }
     } catch (err) {
         // return a mocked pre-signed url (data URI or a public placeholder)
