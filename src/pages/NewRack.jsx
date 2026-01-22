@@ -22,7 +22,7 @@ function NewRack() {
         setError(null);
 
         try {
-            const res = await API.post("/racks/", {
+            await API.post("/racks/", {
                 Name: form.Name,
                 Location: form.Location,
                 TotalCapacity: parseInt(form.TotalCapacity, 10),

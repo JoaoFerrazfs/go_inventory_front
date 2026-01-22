@@ -30,4 +30,6 @@ export async function removeItem(key) {
     return Promise.resolve();
 }
 
-export default { getItem, setItem, removeItem };
+const storage = { getItem, setItem, removeItem };
+
+export default storage;

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
-import API from "../client/api"; // <- Axios com interceptors
+import API from "../client/api";
 import PageContainer from '../components/ui/PageContainer';
-import Card from '../components/ui/Card';
+import Card from '../components/ui/Card'; 
 import Button from '../components/ui/Button';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import { useAuth } from '../context/AuthContext';
+import useBarcodeScanner from '../hooks/useBarcodeScanner';
 
 function PalletDetails() {
     const { selectedInventory } = useAuth();
@@ -25,6 +26,17 @@ function PalletDetails() {
     const [showConfirmDeletePallet, setShowConfirmDeletePallet] = useState(false);
     const [showConfirmDeleteProduct, setShowConfirmDeleteProduct] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
+
+    const { scanning, detectedCode, startScanning, stopScanning, videoRef } = useBarcodeScanner();
+
+    useEffect(() => {
+        if (detectedCode) {
+            setNewProductForm(prev => ({ ...prev, ean: detectedCode }));
+        }
+    }, [detectedCode]);
+
+    const startZxingScanner = startScanning;
+    const stopZxingScanner = stopScanning;
 
     useEffect(() => {
         const fetchPallet = async () => {
@@ -57,6 +69,7 @@ function PalletDetails() {
 
         fetchPallet();
     }, [id]);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -269,9 +282,61 @@ function PalletDetails() {
                     </div>
 
                     {showAddProductForm && selectedInventory?.status !== 'Closed' && (
-                        <form onSubmit={handleAddProduct} className="mb-4 bg-gray-50 p-3 rounded-lg space-y-2">
-                            <input type="number" name="ean" placeholder="EAN" value={newProductForm.ean} onChange={handleNewProductChange} required className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
-                            <input type="number" name="quantity" placeholder="Quantidade" value={newProductForm.quantity} onChange={handleNewProductChange} required className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
+                        <form onSubmit={handleAddProduct} className="mb-4 bg-gray-50 p-3 rounded-lg space-y-2 relative">
+                            <div className="relative flex items-center">
+                                <input
+                                    type="number"
+                                    name="ean"
+                                    placeholder="EAN"
+                                    value={newProductForm.ean}
+                                    onChange={handleNewProductChange}
+                                    required
+                                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 pr-10"
+                                    inputMode="numeric"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={scanning ? stopZxingScanner : startZxingScanner}
+                                    className={`absolute right-2 top-1/2 -translate-y-1/2 ${scanning ? 'text-red-600' : 'text-blue-600'} hover:text-blue-800`}
+                                    aria-label={scanning ? "Parar leitura" : "Ler código de barras"}
+                                >
+                                    {scanning ? (
+                                        <span className="font-bold">×</span>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 5.25v13.5m16.5-13.5v13.5M7.5 5.25v13.5m9-13.5v13.5" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
+                            {scanning && (
+                                <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
+                                    <div className="relative w-screen h-screen">
+                                        <div ref={videoRef} className="w-full h-full"></div>
+                                        {/* Crosshair for centering */}
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <div className="w-16 h-16 border-2 border-white rounded-full flex items-center justify-center">
+                                                <div className="w-8 h-8 border border-white rounded-full"></div>
+                                            </div>
+                                        </div>
+                                        <button type="button" onClick={stopZxingScanner} className="absolute top-4 right-4 text-white bg-red-600 rounded-full p-2 hover:bg-red-700 z-10">
+                                            ✕
+                                        </button>
+                                        <p className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-center text-sm">Centralize o código de barras no círculo</p>
+                                    </div>
+                                </div>
+                            )}
+                            <input
+                                type="number"
+                                name="quantity"
+                                placeholder="Quantidade"
+                                value={newProductForm.quantity}
+                                onChange={handleNewProductChange}
+                                required
+                                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
+                                inputMode="numeric"
+                                min="0"
+                            />
                             <Button type="submit" className="w-full">Salvar Produto</Button>
                         </form>
                     )}

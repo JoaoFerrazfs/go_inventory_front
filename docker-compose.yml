@@ -14,7 +14,6 @@ services:
       - REACT_APP_MINIO_TUNNEL=${MINIO_TUNNEL}
     volumes:
       - ./:/app:delegated
-      - /app/node_modules
-    command: bash -lc "npm install --silent && npm start"
+    command: bash -lc "npm install --include=dev --silent && npm start"
     stdin_open: true
     tty: true

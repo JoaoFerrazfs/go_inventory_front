@@ -56,7 +56,7 @@ export async function removeProductFromPallet(palletId, productsEan) {
     return resp.data;
 }
 
-export default {
+const palletService = {
     listPallets,
     exportPallets,
     getPallet,
@@ -66,3 +66,5 @@ export default {
     addProductToPallet,
     removeProductFromPallet,
 };
+
+export default palletService;

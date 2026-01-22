@@ -27,4 +27,6 @@ export async function logout() {
     await storage.removeItem('refreshToken');
 }
 
-export default { login, refreshToken, logout };
+const authService = { login, refreshToken, logout };
+
+export default authService;

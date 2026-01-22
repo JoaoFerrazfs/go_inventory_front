@@ -27,4 +27,6 @@ export async function deleteRack(id) {
     return resp.data;
 }
 
-export default { listRacks, getRack, createRack, deleteRack };
+const rackService = { listRacks, getRack, createRack, deleteRack };
+
+export default rackService;

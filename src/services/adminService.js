@@ -18,4 +18,6 @@ export async function requestReport(type = 'inventory') {
     }
 }
 
-export default { requestReport };
+const adminService = { requestReport };
+
+export default adminService;
