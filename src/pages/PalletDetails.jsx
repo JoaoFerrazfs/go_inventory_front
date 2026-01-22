@@ -22,7 +22,7 @@ function PalletDetails() {
     const [productQuantity, setProductQuantity] = useState(0);
 
     const [showAddProductForm, setShowAddProductForm] = useState(false);
-    const [newProductForm, setNewProductForm] = useState({ ean: "", quantity: 0 });
+    const [newProductForm, setNewProductForm] = useState({ ean: "", quantity: "" });
     const [showConfirmDeletePallet, setShowConfirmDeletePallet] = useState(false);
     const [showConfirmDeleteProduct, setShowConfirmDeleteProduct] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
@@ -183,7 +183,7 @@ function PalletDetails() {
             });
 
             setPallet(res.data);
-            setNewProductForm({ ean: "", quantity: 0 });
+            setNewProductForm({ ean: "", quantity: "" });
             setShowAddProductForm(false);
             toast.success("Produto adicionado com sucesso!");
         } catch (err) {
