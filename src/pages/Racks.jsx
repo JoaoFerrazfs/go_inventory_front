@@ -94,7 +94,7 @@ function Racks() {
                     const slotsOcupados = rack.Pallets ? rack.Pallets.length : 0;
                     const percentage = parseFloat(rack.PercetageUsed || 0).toFixed(0);
                     return (
-                        <a key={rack.ID} href={`#/racks/${rack.ID}`} className="block">
+                        <Link key={rack.ID} to={`/racks/${rack.ID}`} className="block">
                             <div className="bg-white p-5 rounded-2xl shadow hover:shadow-xl transition border-t-4 border-blue-600">
                                 <div className="flex items-center justify-center mb-4">
                                     <Archive size={48} className="text-blue-500" />
@@ -110,7 +110,7 @@ function Racks() {
 
                                 <p className="text-xs text-right mt-1 text-gray-600">{percentage}% Ocupado</p>
                             </div>
-                        </a>
+                        </Link>
                     );
                 })}
             </div>

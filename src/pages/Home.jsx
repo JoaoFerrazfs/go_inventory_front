@@ -23,7 +23,7 @@ export default function Home() {
                     <p className="text-gray-600 max-w-lg mx-auto mb-6">Um site de inventário logístico, pensado para simplificar o controle de produtos e estoques de forma eficiente e acessível.</p>
                     <img src={process.env.PUBLIC_URL + "/img/banner1.png"} alt="Banner" className="w-full max-w-2xl rounded-xl mb-6 object-contain mx-auto" />
                     <div className="flex justify-center">
-                        <a href="#/login">
+                        <a href="/login">
                             <Button variant="primary">Fazer Login</Button>
                         </a>
                     </div>
